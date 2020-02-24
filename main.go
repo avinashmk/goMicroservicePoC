@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"html/template"
 )
 
 type Page struct {
@@ -41,12 +42,17 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 
 func createHandler(w http.ResponseWriter, r *http.Request) {
 	title := r.URL.Path[len("/create/"):]
+	t, _ := template.ParseFiles("createHandlerTemplate.html")
+	t.Execute(w, title)
+	
+	/* Legacy:
 	fmt.Fprintf(w, "<h1>Creating: %s</h1>"+
         "<form action=\"/save/%s\" method=\"POST\">"+
         "<textarea name=\"body\"></textarea><br>"+
         "<input type=\"submit\" value=\"Save\">"+
         "</form>",
         title, title)
+	*/
 }
 
 func readHandler(w http.ResponseWriter, r *http.Request) {
@@ -55,7 +61,12 @@ func readHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
+	t, _ := template.ParseFiles("readHandlerTemplate.html")
+	t.Execute(w, page)
+	
+	/* Legacy
 	fmt.Fprintf(w, "<h1>%s</h1><div>%s</div>", page.Title, page.Body)
+	*/
 }
 
 func updateHandler(w http.ResponseWriter, r *http.Request) {
@@ -65,11 +76,17 @@ func updateHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "<h1>Unable to open %s</h1>", title)
 		return
 	}
+	
+	t, _ := template.ParseFiles("editHandlerTemplate.html")
+	t.Execute(w, p)
+	
+	/* Legacy:
 	fmt.Fprintf(w, "<h1>Editing: %s</h1>"+
 		"<form action=\"/save/%s\" method=\"POST\">"+
 		"<textarea name=\"body\">%s</textarea><br>"+
 		"<input type=\"submit\" value=\"Save\">"+
 		"</form>", title, title, string(p.Body))
+	*/
 }
 
 func deleteHandler(w http.ResponseWriter, r *http.Request) {
