@@ -1,5 +1,8 @@
-# Eclipse IDE files
-.project
+# Data files
+*.txt
+
+# Git files
+.git*
 
 # Binaries for programs and plugins
 *.exe

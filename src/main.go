@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
-	"html/template"
 )
 
 type Page struct {
@@ -18,13 +18,13 @@ type Page struct {
 // save To save a page.
 // usage: page1.save()
 func (p *Page) save() error {
-	filename := p.Title + ".txt"
+	filename := "../" + p.Title + ".txt"
 	return ioutil.WriteFile(filename, p.Body, 0600)
 }
 
 // loadPage To load a page with given title
 func loadPage(title string) (*Page, error) {
-	filename := title + ".txt"
+	filename := "../" + title + ".txt"
 	body, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err
@@ -42,16 +42,16 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 
 func createHandler(w http.ResponseWriter, r *http.Request) {
 	title := r.URL.Path[len("/create/"):]
-	t, _ := template.ParseFiles("createHandlerTemplate.html")
+	t, _ := template.ParseFiles("../templates/createHandlerTemplate.html")
 	t.Execute(w, title)
-	
+
 	/* Legacy:
-	fmt.Fprintf(w, "<h1>Creating: %s</h1>"+
-        "<form action=\"/save/%s\" method=\"POST\">"+
-        "<textarea name=\"body\"></textarea><br>"+
-        "<input type=\"submit\" value=\"Save\">"+
-        "</form>",
-        title, title)
+		fmt.Fprintf(w, "<h1>Creating: %s</h1>"+
+	        "<form action=\"/save/%s\" method=\"POST\">"+
+	        "<textarea name=\"body\"></textarea><br>"+
+	        "<input type=\"submit\" value=\"Save\">"+
+	        "</form>",
+	        title, title)
 	*/
 }
 
@@ -61,9 +61,9 @@ func readHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
-	t, _ := template.ParseFiles("readHandlerTemplate.html")
+	t, _ := template.ParseFiles("../templates/readHandlerTemplate.html")
 	t.Execute(w, page)
-	
+
 	/* Legacy
 	fmt.Fprintf(w, "<h1>%s</h1><div>%s</div>", page.Title, page.Body)
 	*/
@@ -76,10 +76,10 @@ func updateHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "<h1>Unable to open %s</h1>", title)
 		return
 	}
-	
-	t, _ := template.ParseFiles("editHandlerTemplate.html")
+
+	t, _ := template.ParseFiles("../templates/editHandlerTemplate.html")
 	t.Execute(w, p)
-	
+
 	/* Legacy:
 	fmt.Fprintf(w, "<h1>Editing: %s</h1>"+
 		"<form action=\"/save/%s\" method=\"POST\">"+
@@ -91,7 +91,7 @@ func updateHandler(w http.ResponseWriter, r *http.Request) {
 
 func deleteHandler(w http.ResponseWriter, r *http.Request) {
 	title := r.URL.Path[len("/delete/"):]
-	filePath, err := filepath.Abs(title + ".txt")
+	filePath, err := filepath.Abs("../" + title + ".txt")
 	if err != nil {
 		return
 	}
@@ -116,5 +116,5 @@ func main() {
 	http.HandleFunc("/update/", updateHandler)
 	http.HandleFunc("/delete/", deleteHandler)
 	http.HandleFunc("/save/", saveHandler)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":9908", nil))
 }
